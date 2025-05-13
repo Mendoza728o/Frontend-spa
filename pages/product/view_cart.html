@@ -390,7 +390,7 @@
         message: null,
         totalAmount: 0,
         selectedTotal: 0,
-        baseUrl: 'http://172.17.100.14:3350/rodriguez3',
+        baseUrl: 'http://172.17.100.14:3350/default',
         async fetchCart() {
             try {
                 const response = await fetch(`${this.baseUrl}/api/cart-items/`);
@@ -479,7 +479,7 @@
             <div class="container header-content">
                 <a href="#" class="logo">
                     <i class="fa-solid fa-store logo-icon"></i>
-                    <div class="logo-text">Shop<span>Suey</span></div>
+                    <div class="logo-text">AuraCell<span></span></div>
                 </a>
                 <a href="index.html#product/product_display" class="nav-link">Products</a>
             </div>
