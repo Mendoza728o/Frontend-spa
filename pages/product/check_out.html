@@ -57,9 +57,107 @@
                 <div class="ui text loader">Processing your order...</div>
             </div>
 
-            <div class="ui two column stackable grid">
-                <!-- Left Column - Order Summary -->
-                <div class="column">
+            <!-- Revised Layout: Payment Form First, Then Order Summary -->
+            <div class="ui stackable grid revised-layout">
+                <!-- Left Column - Payment Form (Now First) -->
+                <div class="ten wide column">
+                    <div class="ui raised segment payment-form">
+                        <h3 class="ui dividing header">
+                            <i class="payment icon"></i> Payment Information
+                        </h3>
+
+                        <form class="ui form" @submit.prevent="processPayment">
+                            <div class="two fields">
+                                <div class="required field">
+                                    <label>Full Name</label>
+                                    <div class="ui left icon input">
+                                        <i class="user icon"></i>
+                                        <input type="text" 
+                                               x-model.debounce="paymentForm.name"
+                                               placeholder="Enter your full name"
+                                               required>
+                                    </div>
+                                </div>
+
+                                <div class="required field">
+                                    <label>Email Address</label>
+                                    <div class="ui left icon input">
+                                        <i class="envelope icon"></i>
+                                        <input type="email"
+                                               x-model.debounce="paymentForm.email"
+                                               placeholder="Enter your email"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="required field">
+                                <label>Delivery Address</label>
+                                <div class="ui left icon input">
+                                    <i class="home icon"></i>
+                                    <textarea x-model.debounce="paymentForm.address"
+                                              placeholder="Enter your complete address"
+                                              rows="3"
+                                              required></textarea>
+                                </div>
+                            </div>
+
+                            <div class="two fields">
+                                <div class="required field">
+                                    <label>Payment Method</label>
+                                    <select class="ui fluid dropdown"
+                                            x-model="paymentForm.payment_method"
+                                            required>
+                                        <option value="">Select Payment Method</option>
+                                        <option value="gcash">Cash</option>
+                                        <option value="maya">Maya</option>
+                                        <option value="paypal">MasterCard</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label>Avatar (Optional)</label>
+                                    <div class="ui action input avatar-upload">
+                                        <input type="file" 
+                                               id="avatarInput"
+                                               accept="image/jpeg,image/png"
+                                               @change="handleAvatarUpload"
+                                               style="display: none">
+                                        <label for="avatarInput" class="ui icon button">
+                                            <i class="upload icon"></i>
+                                            Choose Avatar
+                                        </label>
+                                        <div class="ui basic label" x-text="paymentForm.avatarName || 'No file chosen'"></div>
+                                    </div>
+                                    <div class="error-text" x-show="errors.avatar" x-text="errors.avatar"></div>
+                                </div>
+                            </div>
+
+                            <div x-show="avatarPreview" class="ui segment avatar-preview">
+                                <img :src="avatarPreview" 
+                                     class="preview-image"
+                                     style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;">
+                                <button type="button"
+                                        class="ui red mini circular icon button"
+                                        @click.prevent="clearAvatar"
+                                        style="position: absolute; top: -10px; right: -10px;">
+                                    <i class="times icon"></i>
+                                </button>
+                            </div>
+
+                            <button class="ui primary fluid large button submit-button"
+                                    type="submit"
+                                    :disabled="!validateForm() || loading">
+                                <i class="lock icon"></i>
+                                <span x-show="!loading">Complete Purchase</span>
+                                <span x-show="loading">Processing...</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column - Order Summary -->
+                <div class="six wide column">
                     <div class="ui raised segment order-summary">
                         <h3 class="ui dividing header">
                             <i class="list icon"></i> Order Summary
@@ -80,11 +178,9 @@
                                              }">
                                     </div>
                                     <div class="content">
+                                        <div class="header" x-text="item.product.name"></div>
                                         <div class="meta">
                                             <span class="ui small label" x-text="'Quantity: ' + item.quantity"></span>
-                                        </div>
-                                        <div class="description">
-                                            <p x-text="item.product.description"></p>
                                         </div>
                                         <div class="extra">
                                             <div class="ui small label" x-text="'Price: $' + item.product.price"></div>
@@ -104,98 +200,6 @@
                             </div>
                             <div class="label">Total Amount</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Right Column - Payment Form -->
-                <div class="column">
-                    <div class="ui raised segment payment-form">
-                        <h3 class="ui dividing header">
-                            <i class="payment icon"></i> Payment Information
-                        </h3>
-
-                        <form class="ui form" @submit.prevent="processPayment">
-                            <div class="required field">
-                                <label>Full Name</label>
-                                <div class="ui left icon input">
-                                    <i class="user icon"></i>
-                                    <input type="text" 
-                                           x-model.debounce="paymentForm.name"
-                                           placeholder="Enter your full name"
-                                           required>
-                                </div>
-                            </div>
-
-                            <div class="required field">
-                                <label>Email Address</label>
-                                <div class="ui left icon input">
-                                    <i class="envelope icon"></i>
-                                    <input type="email"
-                                           x-model.debounce="paymentForm.email"
-                                           placeholder="Enter your email"
-                                           required>
-                                </div>
-                            </div>
-
-                            <div class="required field">
-                                <label>Delivery Address</label>
-                                <div class="ui left icon input">
-                                    <i class="home icon"></i>
-                                    <textarea x-model.debounce="paymentForm.address"
-                                              placeholder="Enter your complete address"
-                                              rows="3"
-                                              required></textarea>
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <label>Avatar (Optional)</label>
-                                <div class="ui action input avatar-upload">
-                                    <input type="file" 
-                                           id="avatarInput"
-                                           accept="image/jpeg,image/png"
-                                           @change="handleAvatarUpload"
-                                           style="display: none">
-                                    <label for="avatarInput" class="ui icon button">
-                                        <i class="upload icon"></i>
-                                        Choose Avatar
-                                    </label>
-                                    <div class="ui basic label" x-text="paymentForm.avatarName || 'No file chosen'"></div>
-                                </div>
-                                <div class="error-text" x-show="errors.avatar" x-text="errors.avatar"></div>
-                                <div x-show="avatarPreview" class="ui segment avatar-preview" style="margin-top: 1rem;">
-                                    <img :src="avatarPreview" 
-                                         class="preview-image"
-                                         style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;">
-                                    <button type="button"
-                                            class="ui red mini circular icon button"
-                                            @click.prevent="clearAvatar"
-                                            style="position: absolute; top: -10px; right: -10px;">
-                                        <i class="times icon"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="required field">
-                                <label>Payment Method</label>
-                                <select class="ui fluid dropdown"
-                                        x-model="paymentForm.payment_method"
-                                        required>
-                                    <option value="">Select Payment Method</option>
-                                    <option value="gcash">GCash</option>
-                                    <option value="maya">Maya</option>
-                                    <option value="paypal">PayPal</option>
-                                </select>
-                            </div>
-
-                            <button class="ui primary fluid large button submit-button"
-                                    type="submit"
-                                    :disabled="!validateForm() || loading">
-                                <i class="lock icon"></i>
-                                <span x-show="!loading">Complete Purchase</span>
-                                <span x-show="loading">Processing...</span>
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -552,12 +556,12 @@
             color: #fff;
         }
 
-        /* Grid */
-        .ui.two.column.grid {
+        /* Revised Layout */
+        .revised-layout {
             margin: 0 -1rem;
         }
 
-        .ui.two.column.grid > .column {
+        .revised-layout > .column {
             padding: 1rem;
         }
 
@@ -566,6 +570,7 @@
             border-radius: 8px;
             padding: 1.5rem;
             background-color: #fafafa;
+            height: 100%;
         }
 
         .order-summary .ui.dividing.header {
@@ -580,9 +585,9 @@
         }
 
         .ui.items .item .image {
-            width: 80px !important;
-            height: 80px !important;
-            margin-right: 1.5rem;
+            width: 60px !important;
+            height: 60px !important;
+            margin-right: 1rem;
             border-radius: 6px;
             overflow: hidden;
         }
@@ -595,9 +600,10 @@
         }
 
         .ui.items .item .content .header {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #222;
+            margin-bottom: 0.5rem;
         }
 
         .ui.items .item .meta {
@@ -707,6 +713,10 @@
         .avatar-upload .ui.basic.label {
             font-size: 0.9rem;
             color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
         }
 
         .avatar-preview {
@@ -716,6 +726,7 @@
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             display: inline-block;
+            margin-bottom: 1.5rem;
         }
 
         .avatar-preview .ui.button {
@@ -785,11 +796,11 @@
                 font-size: 1.5rem;
             }
 
-            .ui.two.column.grid {
+            .revised-layout {
                 margin: 0;
             }
 
-            .ui.two.column.grid > .column {
+            .revised-layout > .column {
                 padding: 0.5rem;
             }
 
@@ -805,6 +816,16 @@
             .submit-button {
                 font-size: 1rem;
                 padding: 0.75rem;
+            }
+            
+            .ui.form .two.fields {
+                flex-direction: column;
+            }
+            
+            .ui.form .two.fields > .field {
+                width: 100% !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
             }
         }
     </style>
